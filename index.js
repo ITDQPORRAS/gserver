@@ -16,24 +16,30 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.get('/', function (req, res) {
-  var path = __dirname + '/views/index.html';
-  console.log(path);
-  res.sendFile(path);
-});
+// app.get('/', function (req, res) {
+//   var path = __dirname + '/views/index.html';
+//   console.log(path);
+//   res.sendFile(path);
+// });
 
-io.on('connection', function (socket) {
-  socket.on('beep', function () {
-    socket.emit("beep", { data: 5 });
-    console.log('beep recieved');
+const connections = new Set();
+io.on('connection', socket => {
+  connections.add(s);
+  socket.once('disconnect', function () {
+    connections.delete(s);
+    console.log(`A user disconnected with socket id ${socket.id}`)
   });
+  console.log(`A user connected with socket id ${socket.id}`)
+  socket.broadcast.emit('userconnected', socket.id);
 
-  socket.on('change-speed', function (data) {
-    console.log('change speed recieved: ' + data);
-    socket.emit("speed", { newSpeed: data });
-  });
-
-  socket.on('ios-connection', function (data) {
-    console.log('ios connection with message: ' + data);
-  });
-});
+  socket.on('disconnect', () => {
+    socket.broadcast.emit('user-disconnected', socket.id)
+  })
+  socket.on('nudge-client', data => {
+    socket.broadcast.to(data.to).emit('client-nudged', data)
+  })
+  // socket.broadcast.emit('customEmit', socket.id);
+  socket.on('login', data => {
+    socket.broadcast.emit('logins', data)
+  })
+})
