@@ -23,6 +23,6 @@ io.on('connection', socket => {
   })
 })
 
-http.listen(3000, () => {
+http.listen(() => {
   console.log('Listening on *:3000')
 })
