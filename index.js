@@ -2,23 +2,10 @@ var app = require('express')()
 var http = require('http').Server(app)
 var io = require('socket.io')(http)
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-  res.setHeader('Access-Control-Allow-Credentials', true);
-
-  next();
-})
-
-app.get('/clients', (req, res) => {
-  res.send(Object.keys(io.sockets.clients().connected))
-})
 const connections = new Set();
 io.on('connection', socket => {
   connections.add(s);
   socket.once('disconnect', function () {
-    connections.delete(s);
     console.log(`A user disconnected with socket id ${socket.id}`)
   });
   console.log(`A user connected with socket id ${socket.id}`)
