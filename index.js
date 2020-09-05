@@ -21,15 +21,19 @@ io.on('connection', function (socket) {
     console.log(`A user disconnected with socket id ${socket.id}`)
   });
   socket.broadcast.emit('userconnected', socket.id);
-
   socket.on('disconnect', () => {
     socket.broadcast.emit('user-disconnected', socket.id)
   })
   socket.on('nudge-client', data => {
     socket.broadcast.to(data.to).emit('client-nudged', data)
   })
-  // socket.broadcast.emit('customEmit', socket.id);
   socket.on('login', data => {
     socket.broadcast.emit('logins', data)
+  })
+  socket.on('on_ApprovedRR', data => {
+    socket.broadcast.emit('approvedRR', data)
+  })
+  socket.on('approvedTR', data => {
+    socket.broadcast.emit('approvedTR', data)
   })
 });
