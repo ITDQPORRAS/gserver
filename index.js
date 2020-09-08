@@ -33,6 +33,9 @@ io.on('connection', function(socket) {
     socket.on('login', data => {
         socket.broadcast.emit('logins', data)
     })
+    socket.on('out', data => {
+        socket.broadcast.emit('outs', data)
+    })
     socket.on('on_ApprovedRR', data => {
         socket.broadcast.emit('approvedRR', data)
     })
