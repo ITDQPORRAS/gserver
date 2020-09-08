@@ -20,6 +20,9 @@ io.on('connection', function(socket) {
     socket.once('disconnect', function() {
         console.log(`A user disconnected with socket id ${socket.id}`)
     });
+    socket.on('join', function(data) {
+        socket.join(data.email); // We are using room of socket io
+    });
     socket.broadcast.emit('userconnected', socket.id);
     socket.on('disconnect', () => {
         socket.broadcast.emit('user-disconnected', socket.id)
@@ -37,7 +40,6 @@ io.on('connection', function(socket) {
         socket.broadcast.emit('approvedTR', data)
     })
     socket.on('sendMessage', data => {
-        console.log(data)
         io.to(data.email).emit('receivedMessage', data);
     })
 });
