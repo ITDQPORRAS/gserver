@@ -2,13 +2,11 @@ var express = require('express');
 var app = express();
 app.set('port', (process.env.PORT || 5000));
 
-var server = app.listen(app.get('port'), function() {
+var server = app.listen(app.get('port'), { secure: true }, function() {
     console.log('Node app is running on port', app.get('port'));
 });
 
 var io = require('socket.io')(server);
-
-app.use(express.static("./views"));
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -16,28 +14,33 @@ app.use(function(req, res, next) {
     next();
 });
 
-io.on('connection', function(socket) {
-    socket.once('disconnect', function() {
-        console.log(`A user disconnected with socket id ${socket.id}`)
+io.on('connection', socket => {
+    socket.on('message', function(msg) {
+        io.to(`${socketId}`).emit('message', msg); //Message to specific user
     });
-    socket.on('join', function(data) {
-        socket.join(data.email); // We are using room of socket io
-    });
+    console.log(`A user connected with socket id ${socket.id}`)
     socket.broadcast.emit('userconnected', socket.id);
+
     socket.on('disconnect', () => {
         socket.broadcast.emit('user-disconnected', socket.id)
-    })
-    socket.on('nudge-client', data => {
-        socket.broadcast.to(data.to).emit('client-nudged', data)
     })
     socket.on('event_attend', (data) => {
         socket.broadcast.emit('event_attends', data)
     })
+
+    socket.on('sendMessage', data => {
+            console.log(`received ${data.socketId}`)
+            socket.broadcast.to(data.socketId).emit('receivedMessage', data)
+        })
+        // socket.broadcast.emit('customEmit', socket.id);
     socket.on('login', data => {
         socket.broadcast.emit('logins', data)
     })
     socket.on('out', data => {
         socket.broadcast.emit('outs', data)
+    })
+    socket.on('encodeMembers', data => {
+        socket.broadcast.emit('encodeMembers', data)
     })
     socket.on('on_ApprovedRR', data => {
         socket.broadcast.emit('approvedRR', data)
